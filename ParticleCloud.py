@@ -217,7 +217,7 @@ class _ParticleDevice(object):
             return res.json()['result']
 
         else:
-            raise AttributeError()
+            raise AttributeError(name + " was not found")
 
     def _event_loop(self, event_name, call_back, url):
         sse_client = SSEClient(url=url, retry=5000)
@@ -298,7 +298,12 @@ class _ParticleDevice(object):
 
 if __name__ == "__main__":
     import time
-    access_token = 'ACCESS TOKEN'
+    import sys
+
+    if len(sys.argv) != 2:
+        raise Exception("Usage: ParticleCloud.py <access token>")
+
+    access_token = sys.argv[1]
 
     def _event_call_back(event_data):
         print("Event CallBack: " + str(event_data))
@@ -307,7 +312,7 @@ if __name__ == "__main__":
     def _event_call_back2(event_data):
         print("Event CallBack2: " + str(event_data))
 
-    test_name = "event subscribe"
+    test_name = "function"
 
     c = ParticleCloud(username_or_access_token=access_token)
     print(c.devices)
@@ -316,7 +321,10 @@ if __name__ == "__main__":
         var = c.internet_button1.buttonCount
         print(str(var))
     elif test_name == "function":
-        rtn = c.internet_button1.ledOn("led1")
+        for f in c.internet_button1.functions:
+            print(f)
+
+        rtn = c.internet_button1.doReset("led1")
         print(str(rtn))
     elif test_name == "event subscribe":
         c.internet_button1.cloud_subscribe('button3', _event_call_back)
