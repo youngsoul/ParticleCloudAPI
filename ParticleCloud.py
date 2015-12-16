@@ -220,19 +220,24 @@ class _ParticleDevice(object):
             raise AttributeError(name + " was not found")
 
     def _event_loop(self, event_name, call_back, url):
-        sse_client = SSEClient(url=url, retry=5000)
-        # we never leave the for loop because this loop
-        # calls the _next_ method of the sseclient
-        # so it sits here and just waits for messages to be receieved.
-        # the for loop below can be thought of as equivalent to
-        # while True:
-        #   msg = sse_client.next(5000)
-        #   if msg is not None:
-        #      _process_msg(msg)
-        #
-        for msg in sse_client:
-            if len(str(msg)) > 0:
-                call_back(msg)
+        while True:
+            try:
+                sse_client = SSEClient(url=url, retry=5000)
+                # we never leave the for loop because this loop
+                # calls the _next_ method of the sseclient
+                # so it sits here and just waits for messages to be receieved.
+                # the for loop below can be thought of as equivalent to
+                # while True:
+                #   msg = sse_client.next(5000)
+                #   if msg is not None:
+                #      _process_msg(msg)
+                #
+                for msg in sse_client:
+                    if len(str(msg)) > 0:
+                        call_back(msg)
+            except Exception as exc:
+                print("Error in event loop: " + str(exc.message))
+                time.sleep(60)
 
         print("you will never get here because the for loop calls an iterator")
 
