@@ -120,6 +120,9 @@ class ParticleCloud(object):
     def __getattr__(self, name):
         """
             Returns a Device object as an attribute of the ParticleCloud object.
+
+            accessed like:
+            particle_cloud_variable.device_name
         """
         if name in self.devices:
             return self.devices[name]
