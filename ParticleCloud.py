@@ -241,6 +241,7 @@ class _ParticleDevice(object):
             except Exception as exc:
                 print("Error in event loop: " + str(exc.message))
                 time.sleep(60)
+                continue
 
         print("you will never get here because the for loop calls an iterator")
 
@@ -320,7 +321,7 @@ if __name__ == "__main__":
     def _event_call_back2(event_data):
         print("Event CallBack2: " + str(event_data))
 
-    test_name = "function"
+    test_name = "function_led"
 
     c = ParticleCloud(username_or_access_token=access_token)
     print(c.devices)
@@ -343,3 +344,22 @@ if __name__ == "__main__":
     elif test_name == "event publish":
         rtn = c.internet_button1.publish("do_rainbow")
         print("Publish Event: " + str(rtn))
+
+    elif test_name == "function_led":
+        for i in range(1,12):
+            cmd = "{0},blue".format(i)
+            rtn = c.internet_button2.ledOn(cmd)
+            print("function_led({0}): {1}".format(cmd, str(rtn)))
+            time.sleep(1)
+
+        for i in range(1,12):
+            cmd = "{0}".format(i)
+            rtn = c.internet_button2.ledOff(cmd)
+            print("function_led({0}): {1}".format(cmd, str(rtn)))
+            time.sleep(1)
+
+        c.internet_button2.ledOn("0,green")
+        time.sleep(3)
+        c.internet_button2.ledOff("0")
+        time.sleep(3)
+
