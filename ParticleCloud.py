@@ -2,6 +2,7 @@ import requests
 import threading
 from sseclient import SSEClient
 from hammock import Hammock
+import traceback
 
 requests.packages.urllib3.disable_warnings()
 
@@ -65,6 +66,14 @@ class ParticleCloud(object):
             self.access_token = self._login(username_or_access_token, password)
 
         self._get_devices()
+
+    @staticmethod
+    def wait_forever(self):
+        while True:
+            try:
+                time.sleep(3600)
+            except:
+                continue
 
     @staticmethod
     def _check_error(response):
@@ -225,6 +234,7 @@ class _ParticleDevice(object):
     def _event_loop(self, event_name, call_back, url):
         while True:
             try:
+                print("Create SSEClient for url: {0}".format(url))
                 sse_client = SSEClient(url=url, retry=5000)
                 # we never leave the for loop because this loop
                 # calls the _next_ method of the sseclient
@@ -239,8 +249,9 @@ class _ParticleDevice(object):
                     if len(str(msg)) > 0:
                         call_back(msg)
             except Exception as exc:
-                print("Error in event loop: " + str(exc.message))
+                print("Error in event loop [{0}],[{1}],[{2}]".format(event_name, url, traceback.print_exc()))
                 time.sleep(60)
+                print("Reconnect to SSEClient")
                 continue
 
         print("you will never get here because the for loop calls an iterator")
@@ -321,7 +332,7 @@ if __name__ == "__main__":
     def _event_call_back2(event_data):
         print("Event CallBack2: " + str(event_data))
 
-    test_name = "function_led"
+    test_name = "event subscribe"
 
     c = ParticleCloud(username_or_access_token=access_token)
     print(c.devices)
@@ -340,6 +351,7 @@ if __name__ == "__main__":
         c.internet_button1.subscribe('button4', _event_call_back2)
 
         while True:
+            print("\nPhoton Event Subscribe: {0} {1}".format(time.strftime("%x"), time.strftime("%X")))
             time.sleep(300)
     elif test_name == "event publish":
         rtn = c.internet_button1.publish("do_rainbow")
